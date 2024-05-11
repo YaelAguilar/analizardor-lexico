@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from lexer import lexer, analyze_text
+from analyzer import analyze_text
 
 app = Flask(__name__)
 
