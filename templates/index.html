@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Lexical Analyzer</title>
+    <style>
+      body {
+        background-color: #333;
+        color: #f1c40f;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      h1 {
+        margin-bottom: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      textarea {
+        width: 300px;
+        height: 150px;
+        background-color: #444;
+        color: #f1c40f;
+        border: 1px solid #f1c40f;
+        padding: 10px;
+        margin-bottom: 10px;
+        resize: none;
+      }
+      input[type="submit"] {
+        background-color: #f1c40f;
+        color: #333;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #e1b40d;
+      }
+      .results-container {
+        display: flex;
+        justify-content: space-between;
+        width: 620px;
+        margin-top: 20px;
+      }
+      .results {
+        background-color: #444;
+        color: #f1c40f;
+        border: 1px solid #f1c40f;
+        padding: 10px;
+        width: 300px;
+        height: 200px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #f1c40f;
+      }
+      th,
+      td {
+        border: 1px solid #f1c40f;
+        padding: 5px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lexical Analyzer</h1>
+    <form
+      action="/analyze"
+      method="post"
+    >
+      <textarea
+        name="code"
+        placeholder="Inserta Codigo a Analizar"
+      ></textarea
+      ><br />
+      <input
+        type="submit"
+        value="Analizar código"
+      />
+    </form>
+    <div class="results-container">
+      <div
+        id="inputCode"
+        class="results"
+      ></div>
+      <div
+        id="result"
+        class="results"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>LÍNEA</th>
+              <th>SIMBOLO</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      document.querySelector("form").onsubmit = async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const code = formData.get("code");
+        const response = await fetch("/analyze", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+
+        const inputCodeDiv = document.getElementById("inputCode");
+        inputCodeDiv.innerHTML = code.replace(/\n/g, "<br>");
+
+        const resultBody = document.getElementById("resultBody");
+        resultBody.innerHTML = "";
+        result.forEach((token, index) => {
+          const row = document.createElement("tr");
+          const cellLine = document.createElement("td");
+          const cellToken = document.createElement("td");
+          cellLine.innerText = `LÍNEA ${index + 1}`;
+          cellToken.innerText = `<${token.type}> ${token.value}`;
+          row.appendChild(cellLine);
+          row.appendChild(cellToken);
+          resultBody.appendChild(row);
+        });
+      };
+    </script>
+  </body>
+</html>
