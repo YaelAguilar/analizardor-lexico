@@ -1,17 +1,25 @@
 import ply.lex as lex
 
-tokens = [
-    'FOR', 'DO', 'WHILE', 'IF', 'ELSE',
-    'LPAREN', 'RPAREN'
-]
+reserved = {
+    'for': 'FOR',
+    'if': 'IF',
+    'do': 'DO',
+    'while': 'WHILE',
+    'else': 'ELSE'
+}
 
-t_FOR = r'for'
-t_DO = r'do'
-t_WHILE = r'while'
-t_IF = r'if'
-t_ELSE = r'else'
+tokens = [
+    'LPAREN', 'RPAREN'
+] + list(reserved.values())
+
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+
+def t_ID(t):
+    r'\w+'
+    t.value = t.value.lower()
+    t.type = reserved.get(t.value, 'ID')
+    return t
 
 t_ignore = ' \t'
 
@@ -20,7 +28,18 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print(f"Illegal character '{t.value[0]}'")
     t.lexer.skip(1)
 
 lexer = lex.lex()
+
+def analyze_text(text):
+    lexer.input(text)
+    result = []
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
+        result.append((tok.type, tok.value, tok.lineno))
+    return result
+

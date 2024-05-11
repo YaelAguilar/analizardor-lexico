@@ -4,107 +4,165 @@
     <title>Lexical Analyzer</title>
     <style>
       body {
-        background-color: #333;
-        color: #f1c40f;
-        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: "Arial", sans-serif;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
+        min-height: 100vh;
         margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       h1 {
         margin-bottom: 20px;
+        text-align: center;
+        color: #bb86fc;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 700px;
+        background: rgba(30, 30, 30, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        z-index: 1;
+        position: relative;
       }
       form {
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
+        margin-bottom: 15px;
       }
       textarea {
-        width: 300px;
-        height: 150px;
-        background-color: #444;
-        color: #f1c40f;
-        border: 1px solid #f1c40f;
+        width: 100%;
+        max-width: 100%;
+        min-height: 120px;
+        background-color: #2e2e2e;
+        color: #e0e0e0;
+        border: 1px solid #bb86fc;
         padding: 10px;
-        margin-bottom: 10px;
-        resize: none;
+        border-radius: 5px;
+        resize: vertical;
+        font-family: "Courier New", Courier, monospace;
       }
       input[type="submit"] {
-        background-color: #f1c40f;
-        color: #333;
+        background-color: #bb86fc;
+        color: #121212;
         border: none;
-        padding: 10px 20px;
+        padding: 8px 16px;
         cursor: pointer;
+        border-radius: 5px;
+        margin-top: 10px;
+        transition: background-color 0.3s;
       }
       input[type="submit"]:hover {
-        background-color: #e1b40d;
+        background-color: #9a67ea;
       }
       .results-container {
         display: flex;
         justify-content: space-between;
-        width: 620px;
-        margin-top: 20px;
+        width: 100%;
+        gap: 15px;
+        margin-top: 15px;
       }
       .results {
-        background-color: #444;
-        color: #f1c40f;
-        border: 1px solid #f1c40f;
+        background-color: #2e2e2e;
+        color: #e0e0e0;
+        border: 1px solid #bb86fc;
+        border-radius: 5px;
         padding: 10px;
-        width: 300px;
-        height: 200px;
+        width: 48%;
+        height: 250px;
         overflow-y: auto;
         white-space: pre-wrap;
+        box-sizing: border-box;
+        font-family: "Courier New", Courier, monospace;
       }
       table {
         width: 100%;
         border-collapse: collapse;
-        color: #f1c40f;
+        color: #e0e0e0;
       }
       th,
       td {
-        border: 1px solid #f1c40f;
-        padding: 5px;
+        border: 1px solid #bb86fc;
+        padding: 6px;
         text-align: left;
+      }
+      th {
+        background-color: #bb86fc;
+        color: #121212;
+      }
+      .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("https://www.transparenttextures.com/patterns/stardust.png")
+          repeat;
+        z-index: 0;
+        animation: animateBackground 100s linear infinite;
+      }
+      @keyframes animateBackground {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: 10000px 10000px;
+        }
       }
     </style>
   </head>
   <body>
+    <div
+      class="background"
+      id="background"
+    ></div>
     <h1>Lexical Analyzer</h1>
-    <form
-      action="/analyze"
-      method="post"
-    >
-      <textarea
-        name="code"
-        placeholder="Inserta Codigo a Analizar"
-      ></textarea
-      ><br />
-      <input
-        type="submit"
-        value="Analizar código"
-      />
-    </form>
-    <div class="results-container">
-      <div
-        id="inputCode"
-        class="results"
-      ></div>
-      <div
-        id="result"
-        class="results"
+    <div class="container">
+      <form
+        action="/analyze"
+        method="post"
       >
-        <table>
-          <thead>
-            <tr>
-              <th>LÍNEA</th>
-              <th>SIMBOLO</th>
-            </tr>
-          </thead>
-          <tbody id="resultBody"></tbody>
-        </table>
+        <textarea
+          name="code"
+          placeholder="Inserta Código a Analizar"
+        ></textarea
+        ><br />
+        <input
+          type="submit"
+          value="Analizar Código"
+        />
+      </form>
+      <div class="results-container">
+        <div
+          id="inputCode"
+          class="results"
+        ></div>
+        <div
+          id="result"
+          class="results"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>LÍNEA</th>
+                <th>SIMBOLO</th>
+              </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -120,8 +178,12 @@
         const result = await response.json();
 
         const inputCodeDiv = document.getElementById("inputCode");
-        inputCodeDiv.innerHTML = code.replace(/\n/g, "<br>");
+        inputCodeDiv.innerHTML = "";
+        result.forEach((token) => {
+          inputCodeDiv.innerHTML += `${token.value}<br>`;
+        });
 
+        // Mostrar los tokens analizados en la tabla
         const resultBody = document.getElementById("resultBody");
         resultBody.innerHTML = "";
         result.forEach((token, index) => {
