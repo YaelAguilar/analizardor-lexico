@@ -16,14 +16,21 @@
     <h1>Lexical Analyzer</h1>
     <div class="container">
       <form
+        id="codeForm"
         action="/analyze"
         method="post"
       >
         <textarea
           name="code"
+          id="code"
           placeholder="Inserta Código a Analizar"
         ></textarea
         ><br />
+        <input
+          type="file"
+          id="fileInput"
+          accept=".txt"
+        /><br />
         <input
           type="submit"
           value="Analizar Código"
